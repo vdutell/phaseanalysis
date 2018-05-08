@@ -1,4 +1,7 @@
 import cv2
+import numpy as np
+
+import utils.distributions as dsts
 
 def readin_im(filename, imfolder):
     im = cv2.imread(imfolder+filename)
@@ -17,7 +20,7 @@ def cosine_window(image):
     filtered_im = image * cosfilter
     return(filtered_im)
 
-def readpreprc_im(filename, imfolder, mean=True, cosine=False):
+def readpreprc_im(filename, imfolder, rescale=True, mean=False, cosine=False):
     #read image in
     im = readin_im(filename, imfolder)
     # average over color channel
@@ -25,6 +28,9 @@ def readpreprc_im(filename, imfolder, mean=True, cosine=False):
     #subtract mean
     if(mean):
         im = im - np.mean(im)
+    #rescale between 0 and 1
+    if(rescale):
+        im = dsts.rescale(im)
     #take cosine window
     if(cosine):
         im = cosine_window(im)
