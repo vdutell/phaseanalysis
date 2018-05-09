@@ -13,6 +13,12 @@ def measure_energy_axis(img,axis):
     e = np.apply_along_axis(get_local_energy_1d, axis, img) 
     return(e)
 
+##measure pc over one axis of images
+def measure_pc_axis(img, axis):
+    e = measure_energy_axis(img,axis)
+    pc = e/np.mean(np.abs(np.fft.fft(img,axis=axis)))
+    return(pc)
+
 #measure energy over an image
 def measure_energy_2d(img):
     
