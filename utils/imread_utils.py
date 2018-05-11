@@ -20,7 +20,7 @@ def cosine_window(image):
     filtered_im = image * cosfilter
     return(filtered_im)
 
-def readpreprc_im(filename, imfolder, rescale=True, mean=False, cosine=False):
+def read_proc_im(filename, imfolder, rescale=True, mean=False, cosine=False):
     #read image in
     im = readin_im(filename, imfolder)
     # average over color channel
@@ -36,3 +36,27 @@ def readpreprc_im(filename, imfolder, rescale=True, mean=False, cosine=False):
         im = cosine_window(im)
     
     return(im)
+
+def cropim(im, cropx, cropy):    
+    y,x = im.shape
+    startx = x//2-(cropx//2)
+    starty = y//2-(cropy//2)
+    if((cropx <= x) & (cropy <=y)):
+        return im[starty:starty+cropy,startx:startx+cropx]
+    else:
+        return(float('nan'))
+
+def readpreprc_ims(filenames, imfolder, rescale=True, mean=False, cosine=False, crop=(512,512)):
+
+    ims = [read_proc_im(fname, imfolder, rescale, mean, cosine) for fname in filenames]
+    
+    if(crop):
+        #mnx = min([np.shape(a)[1] for a in ims])
+        #mny =min([np.shape(a)[0] for a in ims])
+        ims = [cropim(im, *crop) for im in ims]
+        ims = [im for im in ims if ~np.isnan(np.mean(im))]
+        #print(ims[1:10])
+        ims = np.array(ims)
+
+    ims = np.array(ims) #cast to array
+    return(ims)
