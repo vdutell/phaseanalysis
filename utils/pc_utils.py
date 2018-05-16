@@ -1,11 +1,12 @@
 import numpy as np
 from scipy.signal import hilbert
+from scipy.signal import hilbert2
 
 #measure energy of a 1d function
 def get_local_energy_1d(func):
-    f = func - np.mean(func)
+    #f = func - np.mean(func)
     h = np.imag(hilbert(f))
-    energy = np.sqrt(f**2 + h**2)
+    energy = np.sqrt(np.square(f) + np.square(h))
     return(energy) 
 
 #measure energy over one axis of an image
@@ -22,10 +23,11 @@ def measure_pc_axis(img, axis):
 #measure energy over an image
 def measure_energy_2d(img):
     
-    x_e = measure_energy_axis(img,axis=0)
-    y_e = measure_energy_axis(img,axis=1)
+    #x_e = measure_energy_axis(img,axis=0)
+    #y_e = measure_energy_axis(img,axis=1)
+    #energy2d = np.sum([x_e,y_e],axis=0)
     
-    e_vals = np.sum([x_e,y_e],axis=0)
+    energy2d = np.sqrt(np.square(f)+np.square(np.imag(hilbert2(f))))
     
     return(e_vals)
 
