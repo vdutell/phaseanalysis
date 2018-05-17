@@ -3,7 +3,7 @@ from scipy.signal import hilbert
 from scipy.signal import hilbert2
 
 #measure energy of a 1d function
-def get_local_energy_1d(func):
+def get_local_energy_1d(f):
     #f = func - np.mean(func)
     h = np.imag(hilbert(f))
     energy = np.sqrt(np.square(f) + np.square(h))
@@ -21,7 +21,7 @@ def measure_pc_axis(img, axis):
     return(pc)
 
 #measure energy over an image
-def measure_energy_2d(img):
+def measure_energy_2d(f):
     
     #x_e = measure_energy_axis(img,axis=0)
     #y_e = measure_energy_axis(img,axis=1)
@@ -29,7 +29,7 @@ def measure_energy_2d(img):
     
     energy2d = np.sqrt(np.square(f)+np.square(np.imag(hilbert2(f))))
     
-    return(e_vals)
+    return(energy2d)
 
 #measure phase congruency
 def measure_pc_2d(img):
