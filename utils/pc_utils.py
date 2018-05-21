@@ -35,8 +35,8 @@ def measure_energy_2d(f):
 def measure_pc_2d(img):
     
     #can't just divide x and y individually.
-    e_vals = measure_energy_2d(img)
-    
-    pc_vals = e_vals / np.mean(np.abs(np.fft.fft2(img)))
+    e_vals = measure_energy_2d(img, epsilon=0.01)
+    a = np.mean(np.abs(np.fft.fft2(img)))+epsilon
+    pc_vals = np.divide(e_vals, a)
     
     return(pc_vals)
