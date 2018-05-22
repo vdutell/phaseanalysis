@@ -23,7 +23,7 @@ def measure_pc_axis(img, axis):
 #measure energy over an image
 def measure_energy_2d(f):
     
-    #x_e = measure_energy_axis(img,axis=0)
+    #x_e = measure_energy_axis(img,axis=ss0)
     #y_e = measure_energy_axis(img,axis=1)
     #energy2d = np.sum([x_e,y_e],axis=0)
     
@@ -32,10 +32,10 @@ def measure_energy_2d(f):
     return(energy2d)
 
 #measure phase congruency
-def measure_pc_2d(img):
+def measure_pc_2d(img, epsilon = 0.01):
     
     #can't just divide x and y individually.
-    e_vals = measure_energy_2d(img, epsilon=0.01)
+    e_vals = measure_energy_2d(img)
     a = np.mean(np.abs(np.fft.fft2(img)))+epsilon
     pc_vals = np.divide(e_vals, a)
     
