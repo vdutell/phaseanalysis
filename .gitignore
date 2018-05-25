@@ -1,4 +1,4 @@
 *.ipynb_checkpoints*
 images/*
-untracted/*
+untracked/*
 *__pycache__*
