@@ -28,13 +28,14 @@ def read_proc_im(filename, imfolder, rescale=True, mean=False, cosine=False):
     #subtract mean
     if(mean):
         im = im - np.mean(im)
-    #rescale between 0 and 1
+    #rescale between 0 and 1 
     if(rescale):
         im = dsts.rescale(im)
     #take cosine window
     if(cosine):
         im = cosine_window(im)
-    
+    #remove dc component as last step before returning
+    im = dsts.rmdc(im)
     return(im)
 
 def cropim(im, cropx, cropy):    

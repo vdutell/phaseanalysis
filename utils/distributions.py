@@ -1,9 +1,14 @@
 import numpy as np
 
 def rescale(array):
+    #rescale between 0 and 1
     array = array - np.min(array)
     array = array / np.max(array)
     return(array)
+
+def rmdc(array):
+    #remove DC component
+    return(array-np.mean(array))
 
 def make_onef_amp(shape, alpha, k):
     #make an amplitude spectrum of 1/f
