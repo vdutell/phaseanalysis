@@ -10,12 +10,12 @@ def rmdc(array):
     #remove DC component
     return(array-np.mean(array))
 
-def make_onef_amp(shape, alpha, k):
+def make_onef_amp(shape, alpha, betas):
     #make an amplitude spectrum of 1/f
     y, x = np.indices(shape)
     center = np.array(shape)/2
     r = np.hypot(x - center[1], y - center[0])
-    amp = k/(1+r**alpha)
+    amp = np.divide(beta,(1+r**alpha))
     return amp
 
 def make_onef_ims(shape, alpha=1, k=1):
