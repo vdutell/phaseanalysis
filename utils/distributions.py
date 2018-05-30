@@ -10,7 +10,7 @@ def rmdc(array):
     #remove DC component
     return(array-np.mean(array))
 
-def make_onef_amp(shape, alpha, betas):
+def make_onef_amp(shape, alpha, beta):
     #make an amplitude spectrum of 1/f
     y, x = np.indices(shape)
     center = np.array(shape)/2
@@ -18,11 +18,12 @@ def make_onef_amp(shape, alpha, betas):
     amp = np.divide(beta,(1+r**alpha))
     return amp
 
-def make_onef_ims(shape, alpha=1, k=1):
+def make_onef_ims(shape, alpha=1, beta=1.2):
     #make an image with 1/f amplitude and uniformly random phase
-    amp_onef = make_onef_amp(shape, alpha, k) #get amplitude spectrum
+    amp_onef = make_onef_amp(shape, alpha, beta) #get amplitude spectrum
     random_phase = np.random.rand(*shape)*2*np.pi - np.pi #get uniformly random phase dist [-pi,pi]
     recon_onef_rand = np.fft.ifft2(np.fft.ifftshift(amp_onef*np.exp(1j*random_phase))) #inverse fft to get image 
     recon_onef_rand = np.real(recon_onef_rand) #real part of image so we can plot and analyze it.
     recon_onef_rand = rescale(recon_onef_rand) #rescale to 0,1
+    recon_onef_rand = rmdc(recon_onef_rand)
     return(recon_onef_rand)
