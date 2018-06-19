@@ -69,4 +69,14 @@ def measure_pc_2d(img, pcn = 1, pbflag=True, epsilon= 0.001):
         return(pc_vals)
     else:
         return(pc_vals, phibar)
+    
+def pc_recon_im(phibar, e):
+    #reconstruct an image from phibar and energy values
+    im = np.multiply(np.cos(phibar),e)
+    return(im)
+
+def fft_recon_im(amp, phase):
+    recon = np.real(np.fft.ifft2(np.fft.ifftshift(amp*np.exp(1j*phase))))
+    return(recon)
         
+    
