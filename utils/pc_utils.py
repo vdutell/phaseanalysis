@@ -153,7 +153,7 @@ def gen_pc(image_dims, mean_pc_goal = 0.1, thresh = 0.01, max_iters = 10000, ste
         if(iters % 1000 == 0):
             print('*',end='')
             if(iters %10000 == 0):
-                print(iters)
+                print(iters,end='')
         if(iters >= max_iters):
             break
     
