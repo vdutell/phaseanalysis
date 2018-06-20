@@ -123,6 +123,9 @@ def gen_pc(image_dims, mean_pc_goal = 0.1, thresh = 0.01, max_iters = 10000, ste
     #random 1/f amplitude spectrum
     amp = dists.make_onef_amp(image_dims, onef_alpha, onef_k)
     
+    #annealing vector
+    annealing_vec = np.divide(1.,np.linspace(1,1000,num=max_iters))
+    
     #initialized value for phi (fft phase & value x to be perturbed (dx)).
     phi = np.random.rand(*image_dims)*2*np.pi - np.pi
     im_seed = fft_recon_im(amp,phi)
@@ -137,6 +140,7 @@ def gen_pc(image_dims, mean_pc_goal = 0.1, thresh = 0.01, max_iters = 10000, ste
     while(loss > thresh):
         #v: random vector we will purturb with
         randphivec = np.random.uniform(-step_size, step_size, size=image_dims)*np.pi
+        randphivec = randphivec * annealing_vec[iters]
         newloss = loss_func(amp, dists.mod_npi_pi(phi+randphivec), mean_pc_goal)
         if(newloss < loss):
             phi = dists.mod_npi_pi(phi + randphivec)
@@ -159,9 +163,9 @@ def gen_pc(image_dims, mean_pc_goal = 0.1, thresh = 0.01, max_iters = 10000, ste
     
     #check if we reached thresh or needed more iterations
     if(iters >= max_iters):
-        print(f'Didn\'t get to threshold! stopped at {iters} iterations.')
+        print(f'\nDidn\'t get to threshold! stopped at {iters} iterations.')
     else:
-        print(f'Reached Threshold in {iters} inerations!')
+        print(f'\nReached Threshold in {iters} inerations!')
 
     #this is our final image
     img = fft_recon_im(amp,phi)
