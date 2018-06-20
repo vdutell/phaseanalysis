@@ -114,7 +114,7 @@ def gen_pc(image_dims, mean_pc_goal = 0.1, thresh = 0.01, max_iters = 10000, ste
     
     #loss function 
     def loss_func(amp, phi, pc_goal):
-        #trick here use energy for traversing space since it is scalar multiple of PC
+        #trick here use energy for traversing space since it is scalar multiple of PC (and also easier to compute)
         pc = measure_energy_2d(fft_recon_im(amp, phi))[0]
         #pc = measure_pc_2d(fft_recon_im(amp, phi))[0]
         err = np.abs(np.mean(pc) - pc_goal)
@@ -152,6 +152,8 @@ def gen_pc(image_dims, mean_pc_goal = 0.1, thresh = 0.01, max_iters = 10000, ste
         iters+=1
         if(iters % 1000 == 0):
             print('*',end='')
+            if(iters %10000 == 0):
+                prinit(iters)
         if(iters >= max_iters):
             break
     
