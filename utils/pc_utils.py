@@ -70,10 +70,20 @@ def measure_pc_2d(img, pcn = 1, pbflag=True, epsilon= 0.001):
     else:
         return(pc_vals, phibar)
     
+def measure_energy_2d(img, en=1):
+    # wrapper function to take care of two different energy measurement types
+    if(en==1):
+        e_vals, phibar = measure_energy1_2d(img)
+    elif(en==2):
+        e_vals, phibar = measure_energy2_2d(img)
+    return(e_vals, phibar)
+
+    
 def pc_recon_im(phibar, e):
     #reconstruct an image from phibar and energy values
     im = np.multiply(np.cos(phibar),e)
     return(im)
+
 
 def fft_recon_im(amp, phase):
     recon = np.real(np.fft.ifft2(np.fft.ifftshift(amp*np.exp(1j*phase))))
