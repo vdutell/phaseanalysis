@@ -27,3 +27,8 @@ def make_onef_ims(shape, alpha=1, beta=1.2):
     recon_onef_rand = rescale(recon_onef_rand) #rescale to 0,1
     recon_onef_rand = rmdc(recon_onef_rand)
     return(recon_onef_rand)
+
+def mod_npi_pi(array):
+    #convert to [0,2pi]; mod 2pi; convert back to [-pi,pi]
+    array = np.add(np.mod(np.add(array,np.pi),2*np.pi),-np.pi)
+    return(array)
