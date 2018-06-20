@@ -124,7 +124,7 @@ def gen_pc(image_dims, mean_pc_goal = 0.1, thresh = 0.01, max_iters = 10000, ste
     amp = dists.make_onef_amp(image_dims, onef_alpha, onef_k)
     
     #annealing vector
-    annealing_vec = np.divide(1.,np.linspace(1,1000,num=max_iters))
+    annealing_vec = np.divide(1.,np.sqrt(np.linspace(1,1000,num=max_iters)))
     
     #initialized value for phi (fft phase & value x to be perturbed (dx)).
     phi = np.random.rand(*image_dims)*2*np.pi - np.pi
