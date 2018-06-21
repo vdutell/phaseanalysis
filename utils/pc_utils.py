@@ -12,6 +12,11 @@ def get_local_energy_1d(f):
     energy = np.sqrt(np.square(f) + np.square(h))
     return(energy) 
 
+def get_local_pc_1d(f):
+    e = get_local_energy_1d(f)
+    pc = e/np.mean(np.abs(np.fft.fft(f)))
+    return(pc)
+
 #measure energy over one axis of an image
 def measure_energy_axis(img,axis):
     e = np.apply_along_axis(get_local_energy_1d, axis, img) 
