@@ -29,7 +29,7 @@ def pc_evolution(meanpc_evolution, alpha, show=True):
     if(show):
         plt.show()
     
-def compare_initim_genim_stats(initim,genim, alpha, show=True):
+def compare_initim_genim_stats(initim, genim, alpha, show=True):
     plt.figure(figsize=(10,4))
     ipc, ipb = pcu.measure_pc_2d(initim)
     ift = np.fft.fftshift(np.fft.fft2(initim))
