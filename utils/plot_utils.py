@@ -4,8 +4,16 @@ import utils.pc_utils as pcu
 import numpy as np
 
 plt.rcParams['figure.figsize'] = [16, 16]
-
-def compare_initim_genim(initim, genim, alpha, show=True):
+    
+def pc_evolution(meanpc_evolution, alpha, show=True): 
+    plt.figure(figsize=(10,10))
+    plt.plot(meanpc_evolution)
+    plt.title('Evolution of Mean PC')
+    plt.savefig(f'output/evolution_alpha{alpha}.png',dpi=300)
+    if(show):
+        plt.show()
+    
+def compare_initim_genim(genim, initim, alpha, show=True):
     
     #plot init im
     plt.subplot(121)
@@ -17,19 +25,11 @@ def compare_initim_genim(initim, genim, alpha, show=True):
     plt.imshow(genim,cmap='Greys_r')
     plt.axis('off')
     plt.title(f'Generated: alpha={alpha}')
-    plt.savefig(f'output/initial_generated_ims_alpha{alpha}.png',dpi=800)
+    plt.savefig(f'output/initial_generated_ims_alpha{alpha}.png',dpi=300)
     if(show):
         plt.show()
-    
-def pc_evolution(meanpc_evolution, alpha, show=True): 
-    plt.figure(figsize=(10,10))
-    plt.plot(meanpc_evolution)
-    plt.title('Evolution of Mean PC')
-    plt.savefig(f'output/evolution_alpha{alpha}.png',dpi=800)
-    if(show):
-        plt.show()
-    
-def compare_initim_genim_stats(initim, genim, alpha, show=True):
+
+def compare_initim_genim_stats(genim, initim, gap, ggp, alpha, show=True):
     plt.figure(figsize=(10,4))
     ipc, ipb = pcu.measure_pc_2d(initim)
     ift = np.fft.fftshift(np.fft.fft2(initim))
@@ -57,9 +57,9 @@ def compare_initim_genim_stats(initim, genim, alpha, show=True):
     plt.axis('off')
 
     gpc, gpb = pcu.measure_pc_2d(genim)
-    gft = np.fft.fftshift(np.fft.fft2(genim))
-    gap = np.abs(gft)
-    ggp = np.angle(gft)
+    #gft = np.fft.fftshift(np.fft.fft2(genim))
+    #gap = np.abs(gft)
+    #ggp = np.angle(gft)
     plt.subplot(256)
     plt.imshow(genim,cmap='Greys_r')
     plt.title('Gen Im')
@@ -69,7 +69,7 @@ def compare_initim_genim_stats(initim, genim, alpha, show=True):
     plt.imshow(gpc,cmap='Greys_r')
     plt.axis('off')
     plt.subplot(258)
-    plt.title('Gen PB')
+    plt.title('Gen PhiB')
     plt.imshow(gpb,cmap='hsv')
     plt.axis('off')
     plt.subplot(259)
@@ -85,7 +85,7 @@ def compare_initim_genim_stats(initim, genim, alpha, show=True):
     if(show):
         plt.show()
 
-def hist_pc_dists(initim,genim,cats,trail,beach, alpha, show=True):
+def hist_pc_dists(genim, initim, cats,trail,beach, alpha, show=True):
     plt.figure(figsize=(10,10))
     aval=0.2
     plt.hist(pcu.measure_pc_2d(initim)[0].flatten(),bins=100,normed=True,label='initial', alpha = aval);
@@ -95,6 +95,6 @@ def hist_pc_dists(initim,genim,cats,trail,beach, alpha, show=True):
     plt.hist(pcu.measure_pc_2d(beach)[0].flatten(),bins=100,normed=True,label='beach', log=True,alpha = aval);
     plt.title('Distribution of Pixelwise PC')
     plt.legend()
-    plt.savefig(f'output/initial_generated_dists_alpha{alpha}.png',dpi=800)
+    plt.savefig(f'output/initial_generated_dists_alpha{alpha}.png',dpi=300)
     if(show):
         plt.show()

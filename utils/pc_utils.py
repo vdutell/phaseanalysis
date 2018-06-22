@@ -93,10 +93,13 @@ def pc_recon_im(phibar, energy):
     return(im)
 
 
-def fft_recon_im(amplitude, phase):
+def fft_recon_im(amplitude, phase, real_cast=True):
     #reconstruct an image from amplitude and phase values
-    recon = np.real(np.fft.ifft2(np.fft.ifftshift(amplitude*np.exp(1j*phase))))
-    return(recon)
+    complex_recon = np.fft.ifft2(np.fft.ifftshift(amplitude*np.exp(1j*phase)))
+    if(real_cast):
+        return(np.real(complex_recon))
+    else:
+        return(complex_recon)
 
 
 def gen_pc(image_dims, mean_pc_goal = 0.1, thresh = 0.01, max_iters = 10000, step_size = 0.01, onef_alpha = 1.2, onef_k = 100000):
@@ -119,24 +122,27 @@ def gen_pc(image_dims, mean_pc_goal = 0.1, thresh = 0.01, max_iters = 10000, ste
     '''
     
     #loss function 
-    def loss_func(amplitude, phi, pc_goal):
+    def loss_func(amplitude, angle, pc_goal):
         #trick here use energy for traversing space since it is scalar multiple of PC (and also easier to compute)
-        pc = measure_energy_2d(fft_recon_im(amplitude, phi))[0]
+        #get complex recon so we can force imaginary component to zero
+        recon_complex = fft_recon_im(amplitude, angle, real_cast=False)
+        pc = measure_energy_2d(np.real(recon_complex))[0]
         #pc = measure_pc_2d(fft_recon_im(amplitude, phi))[0]
-        err = np.abs(np.mean(pc) - pc_goal)
+        #cost function is a combo between matching pc and making image real.
+        err = np.abs(np.mean(pc) - pc_goal) + np.sum(np.abs(np.imag(recon_complex)))
         return(err)
     
     #random 1/f amplitude spectrum
-    amp = dists.make_onef_amp(image_dims, onef_alpha, onef_k)
+    imamp = dists.make_onef_amp(image_dims, onef_alpha, onef_k)
     
     #annealing vector
     annealing_vec = np.divide(1.,np.sqrt(np.linspace(1,100,num=max_iters)))
     
     #initialized value for phi (fft phase & value x to be perturbed (dx)).
     phi = np.random.rand(*image_dims)*2*np.pi - np.pi
-    im_seed = fft_recon_im(amp,phi)
+    im_seed = fft_recon_im(imamp, phi)
     #resutling error
-    loss = loss_func(amp,phi,mean_pc_goal)
+    loss = loss_func(imamp,phi,mean_pc_goal)
     #count our iterations
     iters = 0
     #evolution of meanpc
@@ -148,16 +154,16 @@ def gen_pc(image_dims, mean_pc_goal = 0.1, thresh = 0.01, max_iters = 10000, ste
         randphivec = np.random.uniform(-step_size, step_size, size=image_dims)*np.pi
         randphivec = randphivec * annealing_vec[iters]
         tryphi = dists.mod_npi_pi(phi+randphivec)
-        tryloss = loss_func(amp, tryphi, mean_pc_goal)
+        tryloss = loss_func(imamp, tryphi, mean_pc_goal)
         if(tryloss < loss):
             phi = tryphi
             loss = tryloss
         else:
             phi = dists.mod_npi_pi(phi - randphivec)
-            loss = loss_func(amp, phi, mean_pc_goal)
+            loss = loss_func(imamp, phi, mean_pc_goal)
             
         #calc new PC value to see if we are at threshold
-        pc = measure_pc_2d(fft_recon_im(amp, phi))[0]
+        pc = measure_pc_2d(fft_recon_im(imamp, phi))[0]
         #keep track of evolution
         meanpc_evolution.append(np.mean(pc))
         #check iterations
@@ -173,10 +179,10 @@ def gen_pc(image_dims, mean_pc_goal = 0.1, thresh = 0.01, max_iters = 10000, ste
     if(iters >= max_iters):
         print(f'\nDidn\'t get to threshold! stopped at {iters} iterations.')
     else:
-        print(f'\nReached Threshold in {iters} inerations!')
+        print(f'\nReached Threshold in {iters} iterations!')
 
     #this is our final image
-    img = fft_recon_im(amp, phi)
+    img = fft_recon_im(imamp, phi)
     
     # return our final image
-    return(img, amp, phi, meanpc_evolution, im_seed)
+    return(img, im_seed, imamp, phi, meanpc_evolution)
