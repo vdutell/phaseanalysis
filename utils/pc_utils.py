@@ -129,7 +129,7 @@ def gen_pc(image_dims, mean_pc_goal = 0.1, thresh = 0.01, max_iters = 10000, ste
         pc = measure_energy_2d(np.real(recon_complex))[0]
         #pc = measure_pc_2d(fft_recon_im(amplitude, phi))[0]
         #cost function is a combo between matching pc and making image real.
-        err = np.abs(np.mean(pc) - pc_goal) + np.sum(np.abs(np.imag(recon_complex)))
+        err = np.abs(np.mean(pc) - pc_goal) + np.mean(np.abs(np.imag(recon_complex)))
         return(err)
     
     #random 1/f amplitude spectrum

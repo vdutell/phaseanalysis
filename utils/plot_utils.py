@@ -12,6 +12,8 @@ def pc_evolution(meanpc_evolution, alpha, show=True):
     plt.savefig(f'output/evolution_alpha{alpha}.png',dpi=300)
     if(show):
         plt.show()
+    else:
+        plt.close()
     
 def compare_initim_genim(genim, initim, alpha, show=True):
     
@@ -28,6 +30,8 @@ def compare_initim_genim(genim, initim, alpha, show=True):
     plt.savefig(f'output/initial_generated_ims_alpha{alpha}.png',dpi=300)
     if(show):
         plt.show()
+    else:
+        plt.close()
 
 def compare_initim_genim_stats(genim, initim, gap, ggp, alpha, show=True):
     plt.figure(figsize=(10,4))
@@ -84,6 +88,8 @@ def compare_initim_genim_stats(genim, initim, gap, ggp, alpha, show=True):
                     dpi=800)
     if(show):
         plt.show()
+    else:
+        plt.close()
 
 def hist_pc_dists(genim, initim, cats,trail,beach, alpha, show=True):
     plt.figure(figsize=(10,10))
@@ -98,3 +104,5 @@ def hist_pc_dists(genim, initim, cats,trail,beach, alpha, show=True):
     plt.savefig(f'output/initial_generated_dists_alpha{alpha}.png',dpi=300)
     if(show):
         plt.show()
+    else:
+        plt.close()
