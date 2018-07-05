@@ -3,3 +3,4 @@ images/*
 untracked/*
 *__pycache__*
 output/*.png
+output/*.png
