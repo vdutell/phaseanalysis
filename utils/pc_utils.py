@@ -46,7 +46,7 @@ def measure_energy_axis(img,axis):
 ##measure pc over one axis of images
 def measure_pc_axis(img, axis):
     e = measure_energy_axis(img,axis)
-    pc = e/np.mean(np.abs(fft2(img,axis=axis)))
+    pc = e/np.mean(np.abs(np.fft.fft2(img,axis=axis)))
     return(pc)
 
 def measure_energy1_2d(f):
