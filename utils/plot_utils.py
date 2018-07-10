@@ -91,17 +91,19 @@ def compare_initim_genim_stats(genim, amp, ggp, initim, igp, alpha, tradeoff, sh
     else:
         plt.close()
 
-def hist_pc_dists(genim, initim, cats, trail, beach, alpha, tradeoff, show=True):
+def hist_pc_dists(genim, initim, cats, trail, beach, alpha, tradeoff, show=True,save=True):
     plt.figure(figsize=(10,10))
     aval=0.2
-    plt.hist(pcu.measure_pc_2d(initim)[0].flatten(),bins=100,normed=True,label='initial', alpha = aval);
-    plt.hist(pcu.measure_pc_2d(genim)[0].flatten(),bins=100,normed=True,label='generated', alpha = aval);
-    plt.hist(pcu.measure_pc_2d(cats)[0].flatten(),bins=100,normed=True,label='cats', alpha = aval);
-    plt.hist(pcu.measure_pc_2d(trail)[0].flatten(),bins=100,normed=True,label='trail', alpha = aval);
-    plt.hist(pcu.measure_pc_2d(beach)[0].flatten(),bins=100,normed=True,label='beach', log=True,alpha = aval);
+    plt.hist(pcu.measure_pc_2d(genim)[0].flatten(),bins=100,density=True,label='generated', alpha = aval);
+    plt.hist(pcu.measure_pc_2d(initim)[0].flatten(),bins=100,density=True,label='initial', alpha = aval);
+    plt.hist(pcu.measure_pc_2d(cats)[0].flatten(),bins=100,density=True,label='cats', alpha = aval);
+    plt.hist(pcu.measure_pc_2d(trail)[0].flatten(),bins=100,density=True,label='trail', alpha = aval);
+    plt.hist(pcu.measure_pc_2d(beach)[0].flatten(),bins=100,density=True,label='beach',alpha = aval);
     plt.title('Distribution of Pixelwise PC')
     plt.legend()
-    plt.savefig(f'output/initial_generated_dists_to{tradeoff}_alpha{alpha}.png',dpi=300)
+
+    if(save):
+        plt.savefig(f'output/initial_generated_dists_to{tradeoff}_alpha{alpha}.png',dpi=300)
     if(show):
         plt.show()
     else:

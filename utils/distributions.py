@@ -6,11 +6,17 @@ def rescale(array):
     array = array / np.max(array)
     return(array)
 
+def crop_sq(array):
+    #crop to square
+    mindim = np.min(np.shape(array))
+    array = array[:mindim,:mindim]
+    return(array)
+
 def rmdc(array):
     #remove DC component
     return(array-np.mean(array))
 
-def make_onef_amp(shape, alpha, beta):
+def make_onef_amp(shape, alpha=1, beta=1.2):
     #make an amplitude spectrum of 1/f
     y, x = np.indices(shape)
     center = np.array(shape)/2
