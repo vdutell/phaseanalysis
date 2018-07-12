@@ -67,14 +67,17 @@ def measure_pc1_2d(img, epsilon=0.001):
 
     return(pc_vals, phibar)
     
-def measure_energy2_2d(f):
+def measure_energy2_2d(f, pbflag=True):
 
     h = np.imag(hilbert2(f))
     #phibar = np.arctan(h/f)
     phibar = np.arctan2(h,f)
     energy2d = np.multiply((np.cos(phibar) - np.abs(np.sin(phibar))), f) 
 
-    return(energy2d, phibar)
+    if(pbflag):
+        return(energy2d, phibar)
+    else:
+        return(energy2d)
 
     
 def measure_pc2_2d(img, epsilon=0.001):
@@ -144,15 +147,15 @@ def gen_pc(image_dims, mean_pc_goal = 0.1, thresh = 0.01, max_iters = 10000, ste
     '''
     
     #loss function 
-    def loss_func(amplitude, angle, pc_goal):
+    def loss_func(amplitude, angle, e_goal):
         #trick here use energy for traversing space since it is scalar multiple of PC (and also easier to compute)
         #get complex recon so we can force imaginary component to zero
         recon_complex = fft_recon_im(amplitude, angle, real_cast=False)
         real_recon = np.real(recon_complex)
-        pc = measure_energy_2d(real_recon - np.mean(real_recon))[0]
+        e = measure_energy_2d(real_recon - np.mean(real_recon))[0] #actually energy
         #pc = measure_pc_2d(fft_recon_im(amplitude, phi))[0]
         #cost function is a combo between matching pc and making image real.
-        err = np.abs(np.mean(pc) - pc_goal) + tradeoff* np.mean(np.abs(np.imag(recon_complex)))
+        err = np.abs(np.mean(e) - e_goal) + tradeoff* np.mean(np.abs(np.imag(recon_complex)))
         #print(err, np.mean(np.abs(np.imag(recon_complex))))
         return(err, recon_complex)
     
@@ -220,3 +223,4 @@ def gen_pc(image_dims, mean_pc_goal = 0.1, thresh = 0.01, max_iters = 10000, ste
     
     # return our final image
     return(genimg, imamp, phi, im_seed, init_phi, meanpc_evolution)
+
