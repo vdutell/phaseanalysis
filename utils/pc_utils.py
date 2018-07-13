@@ -126,7 +126,7 @@ def fft_recon_im(amplitude, phase, real_cast=True):
         return(complex_recon)
 
 
-def gen_pc(image_dims, mean_pc_goal = 0.1, thresh = 0.01, max_iters = 10000, step_size = 0.01, onef_alpha = 1.2, onef_k = 1.6, tradeoff = 1):
+def gen_pc(image_dims, mean_pc_goal = 0.1, thresh = 0.01, max_iters = 10000, step_size = 0.01, onef_alpha = 1.2, onef_k = 1.6):
     
     '''
     Generate an image patch with 1/f amplitude and a given mean PC value
@@ -155,17 +155,18 @@ def gen_pc(image_dims, mean_pc_goal = 0.1, thresh = 0.01, max_iters = 10000, ste
         e = measure_energy_2d(real_recon - np.mean(real_recon))[0] #actually energy
         #pc = measure_pc_2d(fft_recon_im(amplitude, phi))[0]
         #cost function is a combo between matching pc and making image real.
-        err = np.abs(np.mean(e) - e_goal) + tradeoff* np.mean(np.abs(np.imag(recon_complex)))
+        err = np.abs(np.mean(e) - e_goal)
         #print(err, np.mean(np.abs(np.imag(recon_complex))))
         return(err, recon_complex)
-    
-    
     
     #random 1/f amplitude spectrum
     imamp = dists.make_onef_amp(image_dims, onef_alpha, onef_k)
     
     #initialized value for phi (fft phase & value x to be perturbed (dx)).
     init_phi = np.random.rand(*image_dims)*2*np.pi - np.pi
+    #make it follow symmetry properties of real signal
+    init_phi = dists.rad_symmetrize(init_phi)
+    
     phi = init_phi
     im_seed = np.real(np.fft.ifft2(np.fft.ifftshift(imamp*np.exp(1j*init_phi)))) #i
     #im_seed = fft_recon_im(imamp, phi)
@@ -180,13 +181,13 @@ def gen_pc(image_dims, mean_pc_goal = 0.1, thresh = 0.01, max_iters = 10000, ste
     #annealing vector
     annealing_vec = np.divide(1.,np.sqrt(np.linspace(1,100,num=max_iters)))
     
-    
     #iterate while our threshold is not reached
     while(loss > thresh):
         #v: random vector we will purturb with
         randphivec = np.random.uniform(-step_size, step_size, size=image_dims)*np.pi
         randphivec = randphivec * annealing_vec[iters]
         tryphi = dists.mod_npi_pi(phi+randphivec)
+        tryphi = dists.rad_symmetrize(tryphi)
         tryloss, recon_complex = loss_func(imamp, tryphi, mean_pc_goal)
         if(tryloss < loss):
             phi = tryphi
@@ -194,6 +195,7 @@ def gen_pc(image_dims, mean_pc_goal = 0.1, thresh = 0.01, max_iters = 10000, ste
 
         else:
             phi = dists.mod_npi_pi(phi - randphivec)
+            phi = dists.rad_symmetrize(phi)
             loss, recon_complex = loss_func(imamp, phi, mean_pc_goal)
         
         #calc new PC value to see if we are at threshold
