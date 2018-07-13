@@ -12,6 +12,16 @@ def crop_sq(array):
     array = array[:mindim,:mindim]
     return(array)
 
+def crop_matchsize(crop_img,sizematch_img):
+    oldy, oldx = crop_img.shape
+    newy, newx = sizematch_img.shape
+    if((oldy < newy) or (oldx < newx)):
+        raise ValueError('Image to be cropped must be larger than sizematched image')
+    startx = oldx//2-(newx//2)
+    starty = oldy//2-(newy//2)    
+    return crop_img[starty:starty+newy,startx:startx+newx]
+
+
 def rmdc(array):
     #remove DC component
     return(array-np.mean(array))
