@@ -38,3 +38,51 @@ def mod_npi_pi(array):
     #convert to [0,2pi]; mod 2pi; convert back to [-pi,pi]
     array = np.add(np.mod(np.add(array,np.pi),2*np.pi),-np.pi)
     return(array)
+
+
+def rad_symmetrize(full_mat):
+    '''Make a matrix 'radially odd symmetric' (discarding bottom half)
+    Symmetry properties match that of phase spectrum of a real signal
+    see: https://ccrma.stanford.edu/~jos/ReviewFourier/Symmetries_Real_Signals.html
+    
+    Parameters:
+    full_mat (2d array):  Matrix we will upper triangular portion of to make resutling herm sym matrix.
+    
+    Returns:
+    herm_mat (2d array):  Matrix based on full_mat that is Hermetian Symmetric
+    
+    '''
+    
+    #check for even number of rows & pull of top row if needed
+    if((full_mat.shape[0] % 2) == 0):
+        add_bonus_row = True
+        bonus_row, full_mat = np.vsplit(full_mat, [1,])
+    else:
+        add_bonus_row = False
+    #check for even number of cols & pull off top col if needed
+    if((full_mat.shape[1] % 2) == 0):
+        add_bonus_col = True
+        bonus_col, full_mat = np.hsplit(full_mat, [1,])
+    else:
+        add_bonus_col = False
+    
+    mat_top = full_mat[:np.shape(full_mat)[0]//2]
+    #make bottom hermmetian symmetric wrt top
+    mat_bottom  = np.flipud(np.fliplr(-1*mat_top))
+
+    #make mat middle horizontally symmetric
+    mat_middle = full_mat[np.shape(full_mat)[0]//2]
+    mat_middle[np.shape(mat_middle)[0]//2+1 :] = (-1*mat_middle[:np.shape(mat_middle)[0]//2])[::-1]
+    #remove DC component
+    mat_middle [np.shape(mat_middle)[0]//2] = 0
+    
+    #put our matrix back together
+    new_mat = np.vstack((mat_top, mat_middle, mat_bottom))
+    
+    #add back our extra columns and rows if needed
+    if(add_bonus_col):
+        new_mat = np.hstack((bonus_col,new_mat))
+    if(add_bonus_row):
+        new_mat = np.vstack((bonus_row,new_mat))
+    
+    return(new_mat)
