@@ -6,24 +6,28 @@ from scipy.signal import hilbert2
 
 import utils.distributions as dists
 
+#Kovesi's phase congruency package
+import phasepack as pp
+
    
 #multithreaded fft support - increases speed for fft & ifft of >100x100 array
-try:
-    import pyfftw
-    import multiprocessing
-    nthread = multiprocessing.cpu_count()
+#try:
+    #notavar #will cause us to use numpy fft
+#    import pyfftw
+##    import multiprocessing
+ #   nthread = multiprocessing.cpu_count()
     #set default functions as faster pyfftw fft
-    def fft2(img):
-        return(pyfftw.interfaces.numpy_fft.fft2(img, threads=nthread))
-    def ifft2(ft):
-        return(pyfftw.interfaces.numpy_fft.ifft2(ft, threads=nthread))
-except ImportError:
-    print('Couldn\'t find pyfftw or multiprocessing package. Using default fft')
-    #set default functions as numpy fft
-    def fft2(img):
-        return(np.fft.fft2(img))
-    def ifft2(ft):
-        return(np.fft.ifft2(ft))
+#    def fft2(img):
+##        return(pyfftw.interfaces.numpy_fft.fft2(img, threads=nthread))
+ #   def ifft2(ft):
+#        return(pyfftw.interfaces.numpy_fft.ifft2(ft, threads=nthread))
+#except ValueError:
+print('Couldn\'t find pyfftw or multiprocessing package. Using default fft')
+#set default functions as numpy fft
+def fft2(img):
+    return(np.fft.fft2(img))
+def ifft2(ft):
+    return(np.fft.ifft2(ft))
 
                
 #measure energy of a 1d function
@@ -35,7 +39,7 @@ def get_local_energy_1d(f):
 
 def get_local_pc_1d(f):
     e = get_local_energy_1d(f)
-    pc = e/np.mean(np.abs(fft2(f)))
+    pc = e/np.mean(np.abs(np.fft.fft(f,axis=0)))
     return(pc)
 
 #measure energy over one axis of an image
@@ -96,7 +100,10 @@ def measure_pc_2d(img, pcn = 1, pbflag=True, epsilon= 0.001):
         pc_vals, phibar = measure_pc1_2d(img, epsilon)
     elif(pcn==2):
         pc_vals, phibar = measure_pc2_2d(img, epsilon)
-
+    elif(pcn==3):
+        pc_vals = pp.phasecong(img)[0]
+        phibar = np.zeros_like(pc_vals) #dont get phibar vals
+        
     if(pbflag==False):
         return(pc_vals)
     else:
@@ -126,7 +133,7 @@ def fft_recon_im(amplitude, phase, real_cast=True):
         return(complex_recon)
 
 
-def gen_pc(image_dims, mean_pc_goal = 0.1, thresh = 0.01, max_iters = 10000, step_size = 0.01, onef_alpha = 1.2, onef_k = 1.6):
+def gen_pc(image_dims, mean_pc_goal = 0.1, thresh = 0.01, max_iters = 10000, step_size = 0.01, onef_alpha = 1.2, onef_beta = 1.6, wavelet=False):
     
     '''
     Generate an image patch with 1/f amplitude and a given mean PC value
@@ -139,6 +146,7 @@ def gen_pc(image_dims, mean_pc_goal = 0.1, thresh = 0.01, max_iters = 10000, ste
     step_size:   What ratio of pi should we step each time?
     onef_alpha:  What is the desired slope of our amplitude of our image?
     onef_beta:     What is the offset of our 1/f slope? (adjusts image contrast)
+    wavelet_pc:     Use Kovesi's wavelet package to compute PC?
     
     Returns:
     genimg (2d numpy array): The resulting image patch (may or may not be converged)
@@ -146,22 +154,26 @@ def gen_pc(image_dims, mean_pc_goal = 0.1, thresh = 0.01, max_iters = 10000, ste
     meanpc_evolution (1d numpy array):   The evolution of the PC value over optimization
     '''
     
+    #set which pc to calculate
+    if(wavelet==True):
+        pc_flag = 3
+    else:
+        pc_flag=1
+    
     #loss function 
-    def loss_func(amplitude, angle, e_goal):
+    def loss_func(amplitude, angle, pc_goal):
         #trick here use energy for traversing space since it is scalar multiple of PC (and also easier to compute)
         #get complex recon so we can force imaginary component to zero
-        recon_complex = fft_recon_im(amplitude, angle, real_cast=False)
-        real_recon = np.real(recon_complex)
-        e = measure_energy_2d(real_recon - np.mean(real_recon))[0] #actually energy
-        #pc = measure_pc_2d(fft_recon_im(amplitude, phi))[0]
-        #cost function is a combo between matching pc and making image real.
-        err = np.abs(np.mean(e) - e_goal)
-        #print(err, np.mean(np.abs(np.imag(recon_complex))))
-        return(err, recon_complex)
+        real_recon = fft_recon_im(amplitude, angle, real_cast=True)
+        #real_recon = np.real(recon_complex)
+        pc = measure_pc_2d(real_recon - np.mean(real_recon),
+                          pcn=pc_flag)[0]
+        err = np.abs(np.mean(pc) - pc_goal)
+        return(err, real_recon, np.mean(pc))
     
     #random 1/f amplitude spectrum
-    imamp = dists.make_onef_amp(image_dims, onef_alpha, onef_k)
-    
+    imamp = dists.make_onef_amp(image_dims, onef_alpha, onef_beta)
+
     #initialized value for phi (fft phase & value x to be perturbed (dx)).
     init_phi = np.random.rand(*image_dims)*2*np.pi - np.pi
     #make it follow symmetry properties of real signal
@@ -172,7 +184,7 @@ def gen_pc(image_dims, mean_pc_goal = 0.1, thresh = 0.01, max_iters = 10000, ste
     #im_seed = fft_recon_im(imamp, phi)
     im_seed = im_seed - np.mean(im_seed)
     #resutling error
-    loss = loss_func(imamp,phi,mean_pc_goal)[0]
+    loss, recon_complex, pc = loss_func(imamp,phi,mean_pc_goal)
     #count our iterations
     iters = 0
     #evolution of meanpc
@@ -180,34 +192,39 @@ def gen_pc(image_dims, mean_pc_goal = 0.1, thresh = 0.01, max_iters = 10000, ste
     
     #annealing vector
     annealing_vec = np.divide(1.,np.sqrt(np.linspace(1,100,num=max_iters)))
+    #annealing_vec = np.ones(max_iters)
     
     #iterate while our threshold is not reached
     while(loss > thresh):
         #v: random vector we will purturb with
         randphivec = np.random.uniform(-step_size, step_size, size=image_dims)*np.pi
         randphivec = randphivec * annealing_vec[iters]
-        tryphi = dists.mod_npi_pi(phi+randphivec)
-        tryphi = dists.rad_symmetrize(tryphi)
-        tryloss, recon_complex = loss_func(imamp, tryphi, mean_pc_goal)
+        tryphi = dists.rad_symmetrize(dists.mod_npi_pi(phi+randphivec))
+        tryloss, recon_complex, pc = loss_func(imamp, tryphi, mean_pc_goal)
         if(tryloss < loss):
             phi = tryphi
             loss = tryloss
+            
+            #calc new PC value to see if we are at threshold
+            #real_recon = np.real(recon_complex)
+            #pc = measure_pc_2d(real_recon - np.mean(real_recon),
+                               #pcn=pc_flag)[0]    
+
+            #keep track of evolution
+            meanpc_evolution.append(pc)
 
         else:
-            phi = dists.mod_npi_pi(phi - randphivec)
-            phi = dists.rad_symmetrize(phi)
-            loss, recon_complex = loss_func(imamp, phi, mean_pc_goal)
-        
-        #calc new PC value to see if we are at threshold
-        real_recon = np.real(recon_complex)
-        pc = measure_pc_2d(real_recon - np.mean(real_recon))[0]    
+            phi = dists.rad_symmetrize(dists.mod_npi_pi(phi - randphivec))
+            #try only updating loss half the time so save computational cost.
+            loss, recon_complex, pc = loss_func(imamp, phi, mean_pc_goal)
+            meanpc_evolution.append(pc)
 
-        #keep track of evolution
-        meanpc_evolution.append(np.mean(pc))
+
         #check iterations
         iters+=1
         if(iters % 1000 == 0):
             print('*',end='')
+            #print(pc)
             if(iters %10000 == 0):
                 print(iters,end='')
         if(iters >= max_iters):
