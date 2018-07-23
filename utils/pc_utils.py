@@ -161,14 +161,17 @@ def gen_pc(image_dims, mean_pc_goal = 0.1, thresh = 0.01, max_iters = 10000, ste
         pc_flag=1
     
     #loss function 
-    def loss_func(amplitude, angle, pc_goal):
+    def loss_func(amplitude, angle, pc_goal,measure='median'):
         #trick here use energy for traversing space since it is scalar multiple of PC (and also easier to compute)
         #get complex recon so we can force imaginary component to zero
         real_recon = fft_recon_im(amplitude, angle, real_cast=True)
         #real_recon = np.real(recon_complex)
         pc = measure_pc_2d(real_recon - np.mean(real_recon),
                           pcn=pc_flag)[0]
-        err = np.abs(np.mean(pc) - pc_goal)
+        if(measure=='median'):
+            err = np.abs(np.median(pc) - pc_goal)
+        else:
+            err = np.abs(np.mean(pc) - pc_goal)
         return(err, real_recon, np.mean(pc))
     
     #random 1/f amplitude spectrum
@@ -191,7 +194,7 @@ def gen_pc(image_dims, mean_pc_goal = 0.1, thresh = 0.01, max_iters = 10000, ste
     meanpc_evolution = []
     
     #annealing vector
-    annealing_vec = np.divide(1.,np.sqrt(np.linspace(1,100,num=max_iters)))
+    annealing_vec = np.divide(1.,np.linspace(1,100,num=max_iters))
     #annealing_vec = np.ones(max_iters)
     
     #iterate while our threshold is not reached
