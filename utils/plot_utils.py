@@ -6,10 +6,10 @@ import numpy as np
 
 plt.rcParams['figure.figsize'] = [16, 16]
     
-def pc_evolution(meanpc_evolution, alpha, show=True): 
+def pc_evolution(meanpc_evolution, alpha, show=True, measure='Median'): 
     plt.figure(figsize=(10,10))
     plt.plot(meanpc_evolution)
-    plt.title('Evolution of Mean PC')
+    plt.title(f'Evolution of {measure} PC')
     plt.savefig(f'output/evolution_alpha{alpha}.png',dpi=300)
     if(show):
         plt.show()

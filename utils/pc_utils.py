@@ -133,7 +133,7 @@ def fft_recon_im(amplitude, phase, real_cast=True):
         return(complex_recon)
 
 
-def gen_pc(image_dims, mean_pc_goal = 0.1, thresh = 0.01, max_iters = 10000, step_size = 0.01, onef_alpha = 1.2, onef_beta = 1.6, wavelet=False):
+def gen_pc(image_dims, mean_pc_goal = 0.1, thresh = 0.01, max_iters = 10000, step_size = 0.01, onef_alpha = 1.2, onef_beta = 1.6, wavelet=False, measure='Median'):
     
     '''
     Generate an image patch with 1/f amplitude and a given mean PC value
@@ -161,14 +161,14 @@ def gen_pc(image_dims, mean_pc_goal = 0.1, thresh = 0.01, max_iters = 10000, ste
         pc_flag=1
     
     #loss function 
-    def loss_func(amplitude, angle, pc_goal,measure='median'):
+    def loss_func(amplitude, angle, pc_goal, measure='Median'):
         #trick here use energy for traversing space since it is scalar multiple of PC (and also easier to compute)
         #get complex recon so we can force imaginary component to zero
         real_recon = fft_recon_im(amplitude, angle, real_cast=True)
         #real_recon = np.real(recon_complex)
         pc = measure_pc_2d(real_recon - np.mean(real_recon),
                           pcn=pc_flag)[0]
-        if(measure=='median'):
+        if(measure=='Median'):
             err = np.abs(np.median(pc) - pc_goal)
         else:
             err = np.abs(np.mean(pc) - pc_goal)
@@ -187,7 +187,7 @@ def gen_pc(image_dims, mean_pc_goal = 0.1, thresh = 0.01, max_iters = 10000, ste
     #im_seed = fft_recon_im(imamp, phi)
     im_seed = im_seed - np.mean(im_seed)
     #resutling error
-    loss, recon_complex, pc = loss_func(imamp,phi,mean_pc_goal)
+    loss, recon_complex, pc = loss_func(imamp,phi,mean_pc_goal, measure)
     #count our iterations
     iters = 0
     #evolution of meanpc
@@ -203,7 +203,7 @@ def gen_pc(image_dims, mean_pc_goal = 0.1, thresh = 0.01, max_iters = 10000, ste
         randphivec = np.random.uniform(-step_size, step_size, size=image_dims)*np.pi
         randphivec = randphivec * annealing_vec[iters]
         tryphi = dists.rad_symmetrize(dists.mod_npi_pi(phi+randphivec))
-        tryloss, recon_complex, pc = loss_func(imamp, tryphi, mean_pc_goal)
+        tryloss, recon_complex, pc = loss_func(imamp, tryphi, mean_pc_goal, measure)
         if(tryloss < loss):
             phi = tryphi
             loss = tryloss
@@ -219,7 +219,7 @@ def gen_pc(image_dims, mean_pc_goal = 0.1, thresh = 0.01, max_iters = 10000, ste
         else:
             phi = dists.rad_symmetrize(dists.mod_npi_pi(phi - randphivec))
             #try only updating loss half the time so save computational cost.
-            loss, recon_complex, pc = loss_func(imamp, phi, mean_pc_goal)
+            loss, recon_complex, pc = loss_func(imamp, phi, mean_pc_goal, measure)
             meanpc_evolution.append(pc)
 
 
