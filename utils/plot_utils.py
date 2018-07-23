@@ -96,15 +96,15 @@ def hist_pc_dists(genim, initim, cats, trail, beach, alpha, show=True,save=True)
     plt.figure(figsize=(10,10))
     aval=0.2
     plt.hist(pcu.measure_pc_2d(genim)[0].flatten(),
-             bins=100,density=True,label='generated', alpha = aval);
+             bins=50,density=True,label='generated', alpha = aval);
     plt.hist(pcu.measure_pc_2d(initim)[0].flatten(),
-             bins=100,density=True,label='initial', alpha = aval);
+             bins=50,density=True,label='initial', alpha = aval);
     plt.hist(pcu.measure_pc_2d(dists.crop_matchsize(cats,genim))[0].flatten(),
-             bins=100,density=True,label='cats', alpha = aval);
+             bins=50,density=True,label='cats', alpha = aval);
     plt.hist(pcu.measure_pc_2d(dists.crop_matchsize(trail,genim))[0].flatten(),
-             bins=100,density=True,label='trail', alpha = aval);
+             bins=50,density=True,label='trail', alpha = aval);
     plt.hist(pcu.measure_pc_2d(dists.crop_matchsize(beach,genim))[0].flatten(),
-             bins=100,density=True,label='beach',alpha = aval);
+             bins=50,density=True,label='beach',alpha = aval);
     plt.title('Distribution of Pixelwise PC')
     plt.legend()
 
