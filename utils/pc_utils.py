@@ -169,10 +169,11 @@ def gen_pc(image_dims, mean_pc_goal = 0.1, thresh = 0.01, max_iters = 10000, ste
         pc = measure_pc_2d(real_recon - np.mean(real_recon),
                           pcn=pc_flag)[0]
         if(measure=='Median'):
-            err = np.abs(np.median(pc) - pc_goal)
+            mpc = np.median(pc)
         else:
-            err = np.abs(np.mean(pc) - pc_goal)
-        return(err, real_recon, np.mean(pc))
+            mpc = np.median(pc)
+        err = np.abs(mpc - pc_goal)
+        return(err, real_recon, mpc)
     
     #random 1/f amplitude spectrum
     imamp = dists.make_onef_amp(image_dims, onef_alpha, onef_beta)
@@ -194,7 +195,7 @@ def gen_pc(image_dims, mean_pc_goal = 0.1, thresh = 0.01, max_iters = 10000, ste
     meanpc_evolution = []
     
     #annealing vector
-    annealing_vec = np.divide(1.,np.linspace(1,100,num=max_iters))
+    annealing_vec = np.divide(1.,np.linspace(1,500,num=max_iters))
     #annealing_vec = np.ones(max_iters)
     
     #iterate while our threshold is not reached
