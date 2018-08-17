@@ -6,35 +6,35 @@ import numpy as np
 
 plt.rcParams['figure.figsize'] = [16, 16]
     
-def pc_evolution(meanpc_evolution, alpha, show=True, measure='Median'): 
+def pc_evolution(meanpc_evolution, runinfo_string, show=True, measure='Median'): 
     plt.figure(figsize=(10,10))
     plt.plot(meanpc_evolution)
     plt.title(f'Evolution of {measure} PC')
-    plt.savefig(f'output/evolution_alpha{alpha}.png',dpi=300)
+    plt.savefig(f'output/evolution_'+ runinfo_string +'.png',dpi=300)
     if(show):
         plt.show()
     else:
         plt.close()
     
-def compare_initim_genim(genim, initim, alpha, show=True):
+def compare_initim_genim(genim, initim, runinfo_string, show=True):
     
     #plot init im
     plt.subplot(121)
     plt.imshow(initim, cmap='Greys_r')
     plt.axis('off')
-    plt.title(f'Initial: alpha={alpha}')
+    plt.title(f'Initial: {runinfo_string}')
     plt.subplot(122)
     #plot generated im
     plt.imshow(genim,cmap='Greys_r')
     plt.axis('off')
-    plt.title(f'Generated: alpha={alpha}')
-    plt.savefig(f'output/initial_generated_ims_alpha{alpha}.png',dpi=300)
+    plt.title(f'Generated: {runinfo_string}')
+    plt.savefig(f'output/initial_generated_ims_'+ runinfo_string +'.png',dpi=300)
     if(show):
         plt.show()
     else:
         plt.close()
 
-def compare_initim_genim_stats(genim, amp, ggp, initim, igp, alpha, show=True):
+def compare_initim_genim_stats(genim, amp, ggp, initim, igp, runinfo_string, show=True):
     plt.figure(figsize=(10,4))
     ipc, ipb = pcu.measure_pc_2d(initim)
     #ift = np.fft.fftshift(np.fft.fft2(initim))
@@ -85,14 +85,14 @@ def compare_initim_genim_stats(genim, amp, ggp, initim, igp, alpha, show=True):
     plt.title('Gen GP')
     plt.imshow(ggp,cmap='hsv')
     plt.axis('off')
-    plt.savefig(f'output/initial_generated_pcpb_alpha{alpha}.png', 
+    plt.savefig(f'output/initial_generated_pcpb_'+ runinfo_string +'.png', 
                     dpi=800)
     if(show):
         plt.show()
     else:
         plt.close()
 
-def hist_pc_dists(genim, initim, cats, trail, beach, alpha, show=True,save=True):
+def hist_pc_dists(genim, initim, cats, trail, beach, runinfo_string, show=True,save=True):
     plt.figure(figsize=(10,10))
     aval=0.2
     plt.hist(pcu.measure_pc_2d(genim)[0].flatten(),
@@ -109,7 +109,7 @@ def hist_pc_dists(genim, initim, cats, trail, beach, alpha, show=True,save=True)
     plt.legend()
 
     if(save):
-        plt.savefig(f'output/initial_generated_dists_alpha{alpha}.png',dpi=300)
+        plt.savefig(f'output/initial_generated_dists_'+ runinfo_string +'.png',dpi=300)
     if(show):
         plt.show()
     else:

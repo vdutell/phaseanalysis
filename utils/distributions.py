@@ -50,13 +50,14 @@ def mod_npi_pi(array):
     return(array)
 
 
-def rad_symmetrize(full_mat):
+def rad_symmetrize(full_mat, odd = True):
     '''Make a matrix 'radially odd symmetric' (discarding bottom half)
     Symmetry properties match that of phase spectrum of a real signal
     see: https://ccrma.stanford.edu/~jos/ReviewFourier/Symmetries_Real_Signals.html
     
     Parameters:
     full_mat (2d array):  Matrix we will upper triangular portion of to make resutling herm sym matrix.
+    odd (bool): Is bottom of matrix negaive of top? (Set this to True for phase spectra, and false for amplitude spectra)
     
     Returns:
     herm_mat (2d array):  Matrix based on full_mat that is Hermetian Symmetric
@@ -78,11 +79,16 @@ def rad_symmetrize(full_mat):
     
     mat_top = full_mat[:np.shape(full_mat)[0]//2]
     #make bottom hermmetian symmetric wrt top
-    mat_bottom  = np.flipud(np.fliplr(-1*mat_top))
+    mat_bottom  = np.flipud(np.fliplr(mat_top))
+    if(odd):
+        mat_bottom = -1 * mat_bottom
 
     #make mat middle horizontally symmetric
     mat_middle = full_mat[np.shape(full_mat)[0]//2]
-    mat_middle[np.shape(mat_middle)[0]//2+1 :] = (-1*mat_middle[:np.shape(mat_middle)[0]//2])[::-1]
+    mm = mat_middle[:np.shape(mat_middle)[0]//2][::-1]
+    if(odd):
+        mm = -1*mm
+    mat_middle[np.shape(mat_middle)[0]//2+1 :] = mm
     #remove DC component
     mat_middle [np.shape(mat_middle)[0]//2] = 0
     

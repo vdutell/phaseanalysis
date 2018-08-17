@@ -195,7 +195,7 @@ def gen_pc(image_dims, mean_pc_goal = 0.1, thresh = 0.01, max_iters = 10000, ste
     meanpc_evolution = []
     
     #annealing vector
-    annealing_vec = np.divide(1.,np.linspace(1,500,num=max_iters))
+    annealing_vec = np.divide(1.,np.linspace(1,10,num=max_iters))
     #annealing_vec = np.ones(max_iters)
     
     #iterate while our threshold is not reached
