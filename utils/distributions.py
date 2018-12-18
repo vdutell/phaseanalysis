@@ -32,6 +32,8 @@ def make_onef_amp(shape, alpha=1, beta=1.2):
     center = np.array(shape)/2
     r = np.hypot(x - center[1], y - center[0])
     amp = np.divide(beta,(1+r**alpha))
+    # ensure aplitude spectrum is symmetric.
+    amp = rad_symmetrize(amp, odd=False)
     return amp
 
 def make_onef_ims(shape, alpha=1, beta=1.2):

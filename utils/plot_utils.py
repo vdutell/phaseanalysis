@@ -95,21 +95,41 @@ def compare_initim_genim_stats(genim, amp, ggp, initim, igp, runinfo_string, sho
 def hist_pc_dists(genim, initim, cats, trail, beach, runinfo_string, show=True,save=True):
     plt.figure(figsize=(10,10))
     aval=0.2
-    plt.hist(pcu.measure_pc_2d(genim)[0].flatten(),
+    
+    #get colors
+    cs = plt.rcParams['axes.prop_cycle'].by_key()["color"]
+    
+    # generated image
+    pc = pcu.measure_pc_2d(genim)[0]
+    plt.hist(pc.flatten(),
              bins=50,density=True,label='generated', alpha = aval);
-    plt.hist(pcu.measure_pc_2d(initim)[0].flatten(),
+    plt.axvline(np.median(pc), c=cs[0])
+    # initial image
+    pc = pcu.measure_pc_2d(initim)[0]
+    plt.hist(pc.flatten(),
              bins=50,density=True,label='initial', alpha = aval);
-    plt.hist(pcu.measure_pc_2d(dists.crop_matchsize(cats,genim))[0].flatten(),
+    plt.axvline(np.median(pc), c=cs[1])
+    # cats
+    pc = pcu.measure_pc_2d(dists.crop_matchsize(cats,genim))[0]
+    plt.hist(pc.flatten(),
              bins=50,density=True,label='cats', alpha = aval);
-    plt.hist(pcu.measure_pc_2d(dists.crop_matchsize(trail,genim))[0].flatten(),
-             bins=50,density=True,label='trail', alpha = aval);
-    plt.hist(pcu.measure_pc_2d(dists.crop_matchsize(beach,genim))[0].flatten(),
+    plt.axvline(np.median(pc), c=cs[2])
+    # trail
+    #pc = pcu.measure_pc_2d(dists.crop_matchsize(trail,genim))[0]
+    #p = plt.hist(pc.flatten(),
+    #         bins=50,density=True,label='trail', alpha = aval);
+    #plt.axvline(np.median(pc), c=p[0].getcolor())
+    # beach
+    pc = pcu.measure_pc_2d(dists.crop_matchsize(beach,genim))[0]
+    plt.hist(pc.flatten(),
              bins=50,density=True,label='beach',alpha = aval);
+    plt.axvline(np.median(pc), c=cs[3])
+    
     plt.title('Distribution of Pixelwise PC')
     plt.legend()
 
     if(save):
-        plt.savefig(f'output/initial_generated_dists_'+ runinfo_string +'.png',dpi=300)
+        plt.savefig(f'output/initial_generated_dists_'+ runinfo_string +'.png', dpi=300)
     if(show):
         plt.show()
     else:

@@ -171,7 +171,7 @@ def gen_pc(image_dims, mean_pc_goal = 0.1, thresh = 0.01, max_iters = 10000, ste
         if(measure=='Median'):
             mpc = np.median(pc)
         else:
-            mpc = np.median(pc)
+            mpc = np.mean(pc)
         err = np.abs(mpc - pc_goal)
         return(err, real_recon, mpc)
     
